@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediCare Hospital Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-container">
+                <div class="login-header">
+                    <div class="login-icon">
+                        <i data-lucide="stethoscope"></i>
+                    </div>
+                    <h1>MediCare HMS</h1>
+                    <p>Hospital Management System</p>
+                </div>
+                
+                <div class="login-buttons">
+                    <h2>Select User Type</h2>
+                    
+                    <button onclick="login(1)" class="login-btn doctor-btn">
+                        <i data-lucide="stethoscope"></i>
+                        Login as Doctor
+                    </button>
+                    
+                    <button onclick="login(2)" class="login-btn patient-btn">
+                        <i data-lucide="user"></i>
+                        Login as Patient
+                    </button>
+                    
+                    <button onclick="login(3)" class="login-btn staff-btn">
+                        <i data-lucide="user-plus"></i>
+                        Login as Staff
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="mainApp" class="main-app hidden">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <i data-lucide="stethoscope" class="header-icon"></i>
+                        <h1>MediCare HMS</h1>
+                    </div>
+                    
+                    <div class="header-right">
+                        <i data-lucide="bell" class="header-icon clickable"></i>
+                        <button id="chatToggle" class="chat-toggle">
+                            <i data-lucide="message-circle"></i>
+                            <span id="chatIndicator" class="chat-indicator hidden"></span>
+                        </button>
+                        <div class="user-info">
+                            <span id="userName"></span>
+                            <button onclick="logout()" class="logout-btn">Logout</button>
+                        </div>
+                        <button id="mobileMenuToggle" class="mobile-menu-toggle">
+                            <i data-lucide="menu"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="app-body">
+                <!-- Sidebar -->
+                <nav id="sidebar" class="sidebar">
+                    <ul class="nav-list">
+                        <li><button onclick="switchTab('dashboard')" class="nav-btn active" data-tab="dashboard">
+                            <i data-lucide="calendar"></i> Dashboard
+                        </button></li>
+                        <li><button onclick="switchTab('appointments')" class="nav-btn" data-tab="appointments">
+                            <i data-lucide="clock"></i> Appointments
+                        </button></li>
+                        <li><button onclick="switchTab('medications')" class="nav-btn" data-tab="medications">
+                            <i data-lucide="pill"></i> Medications
+                        </button></li>
+                        <li><button onclick="switchTab('referrals')" class="nav-btn" data-tab="referrals">
+                            <i data-lucide="file-text"></i> Referrals
+                        </button></li>
+                        <li><button onclick="switchTab('profile')" class="nav-btn" data-tab="profile">
+                            <i data-lucide="user"></i> Profile
+                        </button></li>
+                    </ul>
+                </nav>
+
+                <!-- Main Content -->
+                <main id="mainContent" class="main-content">
+                    <!-- Dashboard Tab -->
+                    <div id="dashboardTab" class="tab-content active">
+                        <div class="welcome-card">
+                            <h2 id="welcomeMessage">Welcome back!</h2>
+                            <div class="stats-grid">
+                                <div class="stat-card blue">
+                                    <div class="stat-content">
+                                        <div class="stat-text">
+                                            <p>Appointments</p>
+                                            <h3 id="appointmentCount">0</h3>
+                                        </div>
+                                        <i data-lucide="calendar"></i>
+                                    </div>
+                                </div>
+                                <div class="stat-card green">
+                                    <div class="stat-content">
+                                        <div class="stat-text">
+                                            <p>Medications</p>
+                                            <h3 id="medicationCount">0</h3>
+                                        </div>
+                                        <i data-lucide="pill"></i>
+                                    </div>
+                                </div>
+                                <div class="stat-card purple">
+                                    <div class="stat-content">
+                                        <div class="stat-text">
+                                            <p>Referrals</p>
+                                            <h3 id="referralCount">0</h3>
+                                        </div>
+                                        <i data-lucide="file-text"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="recent-appointments">
+                            <h3>Recent Appointments</h3>
+                            <div id="recentAppointmentsList" class="appointments-list">
+                                <!-- Appointments will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointments Tab -->
+                    <div id="appointmentsTab" class="tab-content">
+                        <div class="tab-header">
+                            <h2>Appointments</h2>
+                            <button onclick="showNewAppointmentForm()" class="primary-btn">
+                                <i data-lucide="plus"></i> New Appointment
+                            </button>
+                        </div>
+                        
+                        <div id="newAppointmentForm" class="form-container hidden">
+                            <h3>Schedule New Appointment</h3>
+                            <form id="appointmentForm">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Patient</label>
+                                        <select id="appointmentPatient" required>
+                                            <option value="">Select Patient</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Doctor</label>
+                                        <select id="appointmentDoctor" required>
+                                            <option value="">Select Doctor</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date</label>
+                                        <input type="date" id="appointmentDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Time</label>
+                                        <input type="time" id="appointmentTime" required>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Reason</label>
+                                        <textarea id="appointmentReason" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="primary-btn">Create Appointment</button>
+                                    <button type="button" onclick="hideNewAppointmentForm()" class="secondary-btn">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div id="appointmentsList" class="content-list">
+                            <!-- Appointments will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Medications Tab -->
+                    <div id="medicationsTab" class="tab-content">
+                        <div class="tab-header">
+                            <h2>Medications</h2>
+                            <button id="newMedicationBtn" onclick="showNewMedicationForm()" class="primary-btn hidden">
+                                <i data-lucide="plus"></i> Add Medication
+                            </button>
+                        </div>
+                        
+                        <div id="newMedicationForm" class="form-container hidden">
+                            <h3>Add New Medication</h3>
+                            <form id="medicationForm">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Patient</label>
+                                        <select id="medicationPatient" required>
+                                            <option value="">Select Patient</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Medication</label>
+                                        <input type="text" id="medicationName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Dosage</label>
+                                        <input type="text" id="medicationDosage" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Frequency</label>
+                                        <select id="medicationFrequency" required>
+                                            <option value="">Select Frequency</option>
+                                            <option value="Once daily">Once daily</option>
+                                            <option value="Twice daily">Twice daily</option>
+                                            <option value="Three times daily">Three times daily</option>
+                                            <option value="Four times daily">Four times daily</option>
+                                            <option value="As needed">As needed</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Start Date</label>
+                                        <input type="date" id="medicationStartDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>End Date</label>
+                                        <input type="date" id="medicationEndDate">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="primary-btn">Add Medication</button>
+                                    <button type="button" onclick="hideNewMedicationForm()" class="secondary-btn">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div id="medicationsList" class="content-list">
+                            <!-- Medications will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Referrals Tab -->
+                    <div id="referralsTab" class="tab-content">
+                        <div class="tab-header">
+                            <h2>Doctor Referrals</h2>
+                            <button id="newReferralBtn" onclick="showNewReferralForm()" class="primary-btn hidden">
+                                <i data-lucide="plus"></i> New Referral
+                            </button>
+                        </div>
+                        
+                        <div id="newReferralForm" class="form-container hidden">
+                            <h3>Create New Referral</h3>
+                            <form id="referralForm">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Patient</label>
+                                        <select id="referralPatient" required>
+                                            <option value="">Select Patient</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Refer to Doctor</label>
+                                        <select id="referralDoctor" required>
+                                            <option value="">Select Doctor</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label>Reason for Referral</label>
+                                        <textarea id="referralReason" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="primary-btn">Create Referral</button>
+                                    <button type="button" onclick="hideNewReferralForm()" class="secondary-btn">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div id="referralsList" class="content-list">
+                            <!-- Referrals will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Profile Tab -->
+                    <div id="profileTab" class="tab-content">
+                        <h2>Profile</h2>
+                        <div class="profile-container">
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    <i data-lucide="user"></i>
+                                </div>
+                                <div class="profile-info">
+                                    <h3 id="profileName"></h3>
+                                    <p id="profileRole"></p>
+                                    <p id="profileSpecialty"></p>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-form">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="profileEmail" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Phone</label>
+                                        <input type="tel" id="profilePhone" readonly>
+                                    </div>
+                                    <div class="form-group" id="profileAgeGroup">
+                                        <label>Age</label>
+                                        <input type="number" id="profileAge" readonly>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button class="primary-btn">Edit Profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="chatbot hidden">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <i data-lucide="message-circle"></i>
+                <span>MediBot Assistant</span>
+            </div>
+            <button id="closeChatbot" class="close-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        
+        <div id="chatMessages" class="chat-messages">
+            <!-- Messages will be populated here -->
+        </div>
+        
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Type your message...">
+            <button id="sendMessage" class="send-btn">
+                <i data-lucide="send"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
